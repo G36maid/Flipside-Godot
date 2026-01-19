@@ -1,0 +1,11 @@
+# Ignore raw asset source files
+*.psd
+*.ai
+*.xcf
+*.kra
+*.blend
+
+# Ignore temporary export files
+*.tmp
+*.bak
+*~

@@ -1,0 +1,55 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5jx3y8qwvqnk"]
+
+[ext_resource type="Script" path="res://src/entities/vehicle/vehicle_controller.gd" id="1_vehicle_controller"]
+
+[node name="Vehicle" type="Node2D"]
+script = ExtResource("1_vehicle_controller")
+
+[node name="Chassis" type="RigidBody2D" parent="."]
+mass = 1.0
+gravity_scale = 1.0
+lock_rotation = false
+contact_monitor = true
+max_contacts_reported = 4
+
+[node name="WheelLeft" type="RigidBody2D" parent="."]
+position = Vector2(-40, 0)
+mass = 0.5
+gravity_scale = 1.0
+contact_monitor = true
+max_contacts_reported = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WheelLeft"]
+
+[node name="GroundDetector" type="RayCast2D" parent="WheelLeft"]
+enabled = true
+target_position = Vector2(0, 32)
+collision_mask = 1
+hit_from_inside = false
+
+[node name="WheelRight" type="RigidBody2D" parent="."]
+position = Vector2(40, 0)
+mass = 0.5
+gravity_scale = 1.0
+contact_monitor = true
+max_contacts_reported = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WheelRight"]
+
+[node name="GroundDetector" type="RayCast2D" parent="WheelRight"]
+enabled = true
+target_position = Vector2(0, 32)
+collision_mask = 1
+hit_from_inside = false
+
+[node name="JointLeft" type="PinJoint2D" parent="."]
+position = Vector2(-40, 0)
+node_a = NodePath("../Chassis")
+node_b = NodePath("../WheelLeft")
+softness = 0.0
+
+[node name="JointRight" type="PinJoint2D" parent="."]
+position = Vector2(40, 0)
+node_a = NodePath("../Chassis")
+node_b = NodePath("../WheelRight")
+softness = 0.0

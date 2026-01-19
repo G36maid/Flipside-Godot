@@ -10,9 +10,14 @@ config_version=5
 
 [application]
 
-config/name="New Game Project"
+config/name="Flipside-Godot"
+run/main_scene="res://src/levels/test/poc_physics.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GlobalConstants="*res://src/_core/global_constants.gd"
 
 [rendering]
 
