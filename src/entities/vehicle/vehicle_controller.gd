@@ -50,6 +50,16 @@ func _ready() -> void:
 	wheel_left.physics_material_override = wheel_material
 	wheel_right.physics_material_override = wheel_material
 	
+	# Add damping to prevent bouncing and oscillation
+	wheel_left.linear_damp = 0.5
+	wheel_right.linear_damp = 0.5
+	chassis.linear_damp = 0.3
+	chassis.angular_damp = 1.0
+	
+	# Increase contact detection for better RayCast stability
+	wheel_left.max_contacts_reported = 8
+	wheel_right.max_contacts_reported = 8
+	
 	# Configure PinJoint motors (disabled by default, enabled on ground)
 	joint_left.motor_enabled = false
 	joint_right.motor_enabled = false

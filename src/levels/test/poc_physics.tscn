@@ -1,7 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://ck2p9x7q3wvqm"]
+[gd_scene load_steps=8 format=3 uid="uid://ck2p9x7q3wvqm"]
 
 [ext_resource type="PackedScene" uid="uid://b5jx3y8qwvqnk" path="res://src/entities/vehicle/vehicle.tscn" id="1_vehicle"]
 [ext_resource type="Script" path="res://src/entities/vehicle/camera_follower.gd" id="2_camera"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ground"]
+friction = 0.8
+bounce = 0.0
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(3000, 100)
@@ -24,6 +28,7 @@ position_smoothing_speed = 5.0
 
 [node name="Ground" type="StaticBody2D" parent="."]
 position = Vector2(0, 450)
+physics_material_override = SubResource("PhysicsMaterial_ground")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
 shape = SubResource("RectangleShape2D_ground")
@@ -75,7 +80,7 @@ offset_bottom = 500.0
 color = Color(0.3, 0.3, 0.6, 1)
 
 [node name="Vehicle" parent="." instance=ExtResource("1_vehicle")]
-position = Vector2(-600, 350)
+position = Vector2(-600, 300)
 
 [node name="Camera2D" type="Camera2D" parent="Vehicle"]
 enabled = true
