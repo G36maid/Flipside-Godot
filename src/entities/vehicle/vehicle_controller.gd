@@ -67,16 +67,7 @@ func _ready() -> void:
 	wheel_left.max_contacts_reported = 8
 	wheel_right.max_contacts_reported = 8
 	
-	# Configure PinJoint motors (disabled by default, enabled on ground)
-	joint_left.motor_enabled = false
-	joint_right.motor_enabled = false
 	
-	# TEST: Give initial velocity to test adhesion mechanics
-	# Increased to 1200 px/s for extended observation time (4x threshold)
-	await get_tree().physics_frame  # Wait one frame for physics to initialize
-	wheel_left.linear_velocity = Vector2(1200, 0)
-	wheel_right.linear_velocity = Vector2(1200, 0)
-	chassis.linear_velocity = Vector2(1200, 0)
 
 # ========================================
 # PHYSICS LOOP
@@ -170,25 +161,18 @@ func _update_adhesion_state(grounded: bool) -> void:
 func _handle_input(delta: float) -> void:
 	"""
 	Process player input with mode-dependent control.
-	Ground: Motor torque on wheels (friction-based propulsion)
+	Ground: Direct wheel torque (friction-based propulsion)
 	Air: Torque on chassis (rotation control for landing)
 	"""
 	var input_dir: float = Input.get_axis("ui_left", "ui_right")
 	
 	if control_state == ControlState.GROUND:
-		# Ground mode: Enable motors and set target velocity
-		joint_left.motor_enabled = true
-		joint_right.motor_enabled = true
-		
-		# Apply motor force (TODO: Replace with direct wheel torque if motors unstable)
-		var motor_speed: float = input_dir * GlobalConstants.WHEEL_MOTOR_TORQUE
-		joint_left.motor_target_velocity = motor_speed
-		joint_right.motor_target_velocity = motor_speed
+		# Ground mode: Apply torque directly to wheels
+		var wheel_torque: float = input_dir * GlobalConstants.WHEEL_MOTOR_TORQUE
+		wheel_left.apply_torque(wheel_torque)
+		wheel_right.apply_torque(wheel_torque)
 	else:
-		# Air mode: Disable motors, apply chassis torque for rotation
-		joint_left.motor_enabled = false
-		joint_right.motor_enabled = false
-		
+		# Air mode: Apply torque to chassis for rotation control
 		var air_torque: float = input_dir * GlobalConstants.AIR_TORQUE
 		chassis.apply_torque(air_torque)
 

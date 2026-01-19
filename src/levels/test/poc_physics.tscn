@@ -97,14 +97,34 @@ offset_right = -100.0
 offset_bottom = -350.0
 theme_override_colors/font_color = Color(1, 1, 0, 1)
 theme_override_font_sizes/font_size = 16
-text = "POC Physics Test - Adhesion Mechanics
-Arrow Keys: Control (TODO: Motor not yet implemented)
-Initial velocity: 400 px/s to test adhesion
+text = "POC Physics Test - Control System
+Arrow Keys: Left/Right to control vehicle
+  Ground Mode: Wheel torque for movement
+  Air Mode: Chassis torque for rotation
 
 Watch for:
 - Yellow vector: Velocity
 - Cyan vector: Surface normal (when adhered)
-- Text overlay on vehicle shows real-time state"
+- Green squares: Wheels with collision detection
+- Red/Green rays: Ground detection (red=miss, green=hit)"
 horizontal_alignment = 1
 
 [editable path="Vehicle"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ramp"]
+size = Vector2(400, 40)
+
+[node name="Ramp" type="StaticBody2D" parent="."]
+position = Vector2(400, 300)
+rotation = -0.523599
+physics_material_override = SubResource("PhysicsMaterial_ground")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ramp"]
+shape = SubResource("RectangleShape2D_ramp")
+
+[node name="ColorRect" type="ColorRect" parent="Ramp"]
+offset_left = -200.0
+offset_top = -20.0
+offset_right = 200.0
+offset_bottom = 20.0
+color = Color(0.8, 0.6, 0.2, 1)
+
