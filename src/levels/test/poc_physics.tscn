@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://ck2p9x7q3wvqm"]
+[gd_scene load_steps=9 format=3 uid="uid://ck2p9x7q3wvqm"]
 
 [ext_resource type="PackedScene" uid="uid://b5jx3y8qwvqnk" path="res://src/entities/vehicle/vehicle.tscn" id="1_vehicle"]
 [ext_resource type="Script" path="res://src/entities/vehicle/camera_follower.gd" id="2_camera"]
@@ -19,6 +19,9 @@ size = Vector2(100, 1000)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_right"]
 size = Vector2(100, 1000)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ramp"]
+size = Vector2(400, 40)
 
 [node name="POC_Physics" type="Node2D"]
 
@@ -80,6 +83,21 @@ offset_right = 50.0
 offset_bottom = 500.0
 color = Color(0.3, 0.3, 0.6, 1)
 
+[node name="Ramp" type="StaticBody2D" parent="."]
+position = Vector2(400, 300)
+rotation = -0.523599
+physics_material_override = SubResource("PhysicsMaterial_ground")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ramp"]
+shape = SubResource("RectangleShape2D_ramp")
+
+[node name="ColorRect" type="ColorRect" parent="Ramp"]
+offset_left = -200.0
+offset_top = -20.0
+offset_right = 200.0
+offset_bottom = 20.0
+color = Color(0.8, 0.6, 0.2, 1)
+
 [node name="Vehicle" parent="." instance=ExtResource("1_vehicle")]
 position = Vector2(-600, 300)
 
@@ -110,21 +128,3 @@ Watch for:
 horizontal_alignment = 1
 
 [editable path="Vehicle"]
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ramp"]
-size = Vector2(400, 40)
-
-[node name="Ramp" type="StaticBody2D" parent="."]
-position = Vector2(400, 300)
-rotation = -0.523599
-physics_material_override = SubResource("PhysicsMaterial_ground")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ramp"]
-shape = SubResource("RectangleShape2D_ramp")
-
-[node name="ColorRect" type="ColorRect" parent="Ramp"]
-offset_left = -200.0
-offset_top = -20.0
-offset_right = 200.0
-offset_bottom = 20.0
-color = Color(0.8, 0.6, 0.2, 1)
-
