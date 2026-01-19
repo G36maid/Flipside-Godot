@@ -55,10 +55,11 @@ func _ready() -> void:
 	joint_right.motor_enabled = false
 	
 	# TEST: Give initial velocity to test adhesion mechanics
+	# Increased to 600 px/s for longer observation time
 	await get_tree().physics_frame  # Wait one frame for physics to initialize
-	wheel_left.linear_velocity = Vector2(400, 0)
-	wheel_right.linear_velocity = Vector2(400, 0)
-	chassis.linear_velocity = Vector2(400, 0)
+	wheel_left.linear_velocity = Vector2(600, 0)
+	wheel_right.linear_velocity = Vector2(600, 0)
+	chassis.linear_velocity = Vector2(600, 0)
 
 # ========================================
 # PHYSICS LOOP

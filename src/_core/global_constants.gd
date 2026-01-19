@@ -34,7 +34,9 @@ const CHASSIS_MASS: float = 1.0
 const WHEEL_MASS: float = 0.5
 
 ## Wheel friction coefficient (ground traction)
-const WHEEL_FRICTION: float = 1.0
+## Lower values = less deceleration, higher values = more grip
+## Range: 0.0 (ice) to 1.0 (maximum grip)
+const WHEEL_FRICTION: float = 0.1
 
 ## Motor torque applied to wheels when on ground
 const WHEEL_MOTOR_TORQUE: float = 5000.0
