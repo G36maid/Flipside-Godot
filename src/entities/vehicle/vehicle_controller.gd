@@ -43,6 +43,13 @@ func _ready() -> void:
 	chassis.collision_layer = 0
 	chassis.collision_mask = 0
 	
+	# Set custom inertia for chassis (no collision shape, so inertia would be 0)
+	# Calculate inertia for a 40x20 rectangle: I = m * (w² + h²) / 12
+	# Using chassis dimensions and mass from GlobalConstants
+	var chassis_width: float = 40.0
+	var chassis_height: float = 20.0
+	chassis.inertia = GlobalConstants.CHASSIS_MASS * (chassis_width * chassis_width + chassis_height * chassis_height) / 12.0
+	
 	# Set up physics materials for wheels (high friction, no bounce, absorb impacts)
 	var wheel_material: PhysicsMaterial = PhysicsMaterial.new()
 	wheel_material.friction = GlobalConstants.WHEEL_FRICTION

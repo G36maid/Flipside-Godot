@@ -43,7 +43,9 @@ const WHEEL_FRICTION: float = 0.1
 const WHEEL_MOTOR_TORQUE: float = 5000.0
 
 ## Torque applied to chassis when airborne (for rotation control)
-const AIR_TORQUE: float = 8000.0
+## With chassis inertia ~167, this gives ~4.8 rad/s² angular acceleration
+## (allows ~1.3s for full rotation, responsive but controllable)
+const AIR_TORQUE: float = 800.0
 
 # ========================================
 # DETECTION PARAMETERS
