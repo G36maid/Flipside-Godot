@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://ck2p9x7q3wvqm"]
+[gd_scene load_steps=4 format=3 uid="uid://ck2qax7q3wvqm"]
 
 [ext_resource type="PackedScene" uid="uid://b5jx3y8qwvqnk" path="res://src/entities/vehicle/vehicle.tscn" id="1_vehicle"]
 

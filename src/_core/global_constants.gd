@@ -11,6 +11,11 @@ extends Node
 ## Below this threshold, vehicle loses grip and falls
 const ADHESION_VELOCITY_THRESHOLD: float = 300.0
 
+## Hysteresis buffer (px/s) to prevent flickering at threshold boundary
+## Vehicle must drop to (THRESHOLD - HYSTERESIS) to detach
+## or exceed (THRESHOLD + HYSTERESIS) to attach
+const ADHESION_HYSTERESIS: float = 50.0
+
 ## Downforce multiplier applied when adhering to surfaces
 ## Higher values = stronger grip to walls/ceilings
 const ADHESION_FORCE_MULTIPLIER: float = 2000.0
