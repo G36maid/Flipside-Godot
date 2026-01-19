@@ -75,11 +75,29 @@ func _ready() -> void:
 # PHYSICS LOOP
 # ========================================
 
+# Debug tracking
+var _last_adhered_state: bool = false
+var _debug_frame_counter: int = 0
+
 func _physics_process(delta: float) -> void:
 	_update_physics_state()
 	_handle_input(delta)
 	_apply_adhesion_forces()
 	queue_redraw()  # Trigger debug visualization
+	
+	# Debug: Print state changes
+	_debug_frame_counter += 1
+	if is_adhered != _last_adhered_state:
+		print("[Frame %d] State changed: %s → %s | Velocity: %.1f | RayL: %s | RayR: %s | WheelLeft Y: %.1f" % [
+			_debug_frame_counter,
+			"GROUND" if _last_adhered_state else "AIR",
+			"GROUND" if is_adhered else "AIR",
+			current_velocity,
+			"HIT" if ray_left.is_colliding() else "MISS",
+			"HIT" if ray_right.is_colliding() else "MISS",
+			wheel_left.global_position.y
+		])
+		_last_adhered_state = is_adhered
 
 # ========================================
 # STATE DETECTION
@@ -221,10 +239,33 @@ func _draw() -> void:
 		var normal_vis: Vector2 = surface_normal * 50.0
 		draw_line(Vector2.ZERO, normal_vis, GlobalConstants.DEBUG_ADHESION_COLOR, 2.0)
 	
+	# Draw RayCast detectors (red = not colliding, green = colliding)
+	var ray_left_color: Color = Color.RED if not ray_left.is_colliding() else Color.GREEN
+	var ray_right_color: Color = Color.RED if not ray_right.is_colliding() else Color.GREEN
+	
+	var ray_left_start: Vector2 = wheel_left.position
+	var ray_left_end: Vector2 = wheel_left.position + ray_left.target_position
+	draw_line(ray_left_start, ray_left_end, ray_left_color, 2.0)
+	
+	var ray_right_start: Vector2 = wheel_right.position
+	var ray_right_end: Vector2 = wheel_right.position + ray_right.target_position
+	draw_line(ray_right_start, ray_right_end, ray_right_color, 2.0)
+	
+	# Draw collision points if detected
+	if ray_left.is_colliding():
+		var collision_point: Vector2 = ray_left.get_collision_point() - global_position
+		draw_circle(collision_point, 4.0, Color.YELLOW)
+	
+	if ray_right.is_colliding():
+		var collision_point: Vector2 = ray_right.get_collision_point() - global_position
+		draw_circle(collision_point, 4.0, Color.YELLOW)
+	
 	# Draw state text
-	var state_text: String = "Vel: %.0f | Adhered: %s | Mode: %s" % [
+	var state_text: String = "Vel: %.0f | Adhered: %s | Mode: %s | RayL: %s | RayR: %s" % [
 		current_velocity,
 		"YES" if is_adhered else "NO",
-		"GROUND" if control_state == ControlState.GROUND else "AIR"
+		"GROUND" if control_state == ControlState.GROUND else "AIR",
+		"HIT" if ray_left.is_colliding() else "MISS",
+		"HIT" if ray_right.is_colliding() else "MISS"
 	]
-	draw_string(ThemeDB.fallback_font, Vector2(-50, -60), state_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
+	draw_string(ThemeDB.fallback_font, Vector2(-80, -70), state_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
