@@ -43,12 +43,19 @@ func _ready() -> void:
 	chassis.collision_layer = 0
 	chassis.collision_mask = 0
 	
-	# Set up physics materials for wheels (high friction, no bounce)
+	# Set up physics materials for wheels (high friction, no bounce, absorb impacts)
 	var wheel_material: PhysicsMaterial = PhysicsMaterial.new()
 	wheel_material.friction = GlobalConstants.WHEEL_FRICTION
 	wheel_material.bounce = 0.0
+	wheel_material.absorbent = true  # Prevent bouncing on collision
 	wheel_left.physics_material_override = wheel_material
 	wheel_right.physics_material_override = wheel_material
+	
+	# Increase contact damping to absorb collision energy
+	wheel_left.contact_monitor = true
+	wheel_right.contact_monitor = true
+	wheel_left.continuous_cd = RigidBody2D.CCD_MODE_CAST_RAY
+	wheel_right.continuous_cd = RigidBody2D.CCD_MODE_CAST_RAY
 	
 	# Add damping to prevent bouncing and oscillation
 	wheel_left.linear_damp = 0.5
@@ -65,11 +72,11 @@ func _ready() -> void:
 	joint_right.motor_enabled = false
 	
 	# TEST: Give initial velocity to test adhesion mechanics
-	# Increased to 600 px/s for longer observation time
+	# Increased to 1200 px/s for extended observation time (4x threshold)
 	await get_tree().physics_frame  # Wait one frame for physics to initialize
-	wheel_left.linear_velocity = Vector2(600, 0)
-	wheel_right.linear_velocity = Vector2(600, 0)
-	chassis.linear_velocity = Vector2(600, 0)
+	wheel_left.linear_velocity = Vector2(1200, 0)
+	wheel_right.linear_velocity = Vector2(1200, 0)
+	chassis.linear_velocity = Vector2(1200, 0)
 
 # ========================================
 # PHYSICS LOOP
@@ -195,7 +202,7 @@ func _apply_adhesion_forces() -> void:
 	Uses apply_central_force() which is frame-rate independent.
 	
 	When adhered:
-	  1. Apply downforce along surface normal
+	  1. Apply gentle downforce along surface normal
 	  2. Cancel global gravity with opposite force
 	
 	When falling:
@@ -204,7 +211,8 @@ func _apply_adhesion_forces() -> void:
 	if not is_adhered:
 		return  # Let Godot's built-in gravity work naturally
 	
-	# Calculate adhesion downforce
+	# Apply gentle adhesion force to keep wheels pressed to surface
+	# This counteracts collision response jitter and maintains contact
 	var adhesion_force: Vector2 = -surface_normal * GlobalConstants.ADHESION_FORCE_MULTIPLIER
 	
 	# Calculate gravity cancellation force (F = ma)

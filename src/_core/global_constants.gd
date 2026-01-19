@@ -17,8 +17,9 @@ const ADHESION_VELOCITY_THRESHOLD: float = 300.0
 const ADHESION_HYSTERESIS: float = 50.0
 
 ## Downforce multiplier applied when adhering to surfaces
-## Higher values = stronger grip to walls/ceilings
-const ADHESION_FORCE_MULTIPLIER: float = 2000.0
+## This should be gentle - just enough to keep wheels pressed to ground
+## against collision response jitter (not to fight gravity, that's cancelled)
+const ADHESION_FORCE_MULTIPLIER: float = 200.0
 
 ## Global gravity scale (Godot default is 980 px/s²)
 const GRAVITY: float = 980.0
@@ -49,7 +50,13 @@ const AIR_TORQUE: float = 8000.0
 # ========================================
 
 ## RayCast length for ground detection (from wheel centers)
-const GROUND_DETECTION_LENGTH: float = 32.0
+## Extended beyond wheel radius to detect "near ground" state (prevents bounce disconnect)
+## Wheel radius = 16px, so 64px gives 48px of tolerance below wheel
+const GROUND_DETECTION_LENGTH: float = 64.0
+
+## Ground proximity threshold (px) - how far wheel can be from ground and still "adhere"
+## This allows vehicle to maintain adhesion even during minor bounce/separation
+const GROUND_PROXIMITY_THRESHOLD: float = 32.0
 
 ## Maximum angle (degrees) between wheels' normals to consider "aligned"
 const MAX_NORMAL_DEVIATION: float = 45.0

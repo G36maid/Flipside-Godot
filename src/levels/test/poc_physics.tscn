@@ -6,6 +6,7 @@
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ground"]
 friction = 0.8
 bounce = 0.0
+absorbent = true
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ground"]
 size = Vector2(3000, 100)
