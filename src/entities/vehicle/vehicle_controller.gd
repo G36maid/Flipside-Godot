@@ -53,6 +53,12 @@ func _ready() -> void:
 	# Configure PinJoint motors (disabled by default, enabled on ground)
 	joint_left.motor_enabled = false
 	joint_right.motor_enabled = false
+	
+	# TEST: Give initial velocity to test adhesion mechanics
+	await get_tree().physics_frame  # Wait one frame for physics to initialize
+	wheel_left.linear_velocity = Vector2(400, 0)
+	wheel_right.linear_velocity = Vector2(400, 0)
+	chassis.linear_velocity = Vector2(400, 0)
 
 # ========================================
 # PHYSICS LOOP

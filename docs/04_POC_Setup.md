@@ -111,16 +111,23 @@ func _apply_adhesion_logic() -> void:
 
 **Contents**:
 - Ground plane (flat surface)
-- Ceiling plane (for wall-running test)
-- Vehicle instance
-- Camera2D (zoomed out)
-- Debug label (velocity/adhesion state)
+- Ceiling plane (red, for wall-running test)
+- Left/right walls (blue, containment)
+- Vehicle instance (starts with 400 px/s initial velocity)
+- Camera follower (tracks vehicle automatically)
+- Debug label (instructions)
 
 **How to Test**:
-1. Open `poc_physics.tscn` in Godot
-2. Press F5 to run
-3. Use arrow keys to control (once input is implemented)
-4. Observe adhesion behavior when velocity > threshold
+1. Open project in Godot: `godot --editor .`
+2. Open `src/levels/test/poc_physics.tscn`
+3. Press F5 to run
+4. Watch vehicle behavior:
+   - Should start adhered (velocity = 400 > 300)
+   - Gradually decelerates due to friction
+   - Detaches when velocity drops below ~250 px/s
+   - Settles on ground naturally
+
+**Detailed Testing**: See [docs/05_Testing_Guide.md](05_Testing_Guide.md)
 
 ---
 
