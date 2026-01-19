@@ -39,12 +39,6 @@ offset_right = 16.0
 offset_bottom = 16.0
 color = Color(0.2, 0.8, 0.2, 1)
 
-[node name="GroundDetector" type="RayCast2D" parent="WheelLeft"]
-enabled = true
-target_position = Vector2(0, 64)
-collision_mask = 1
-hit_from_inside = false
-
 [node name="WheelRight" type="RigidBody2D" parent="."]
 position = Vector2(40, 0)
 mass = 0.5
@@ -62,12 +56,6 @@ offset_right = 16.0
 offset_bottom = 16.0
 color = Color(0.2, 0.8, 0.2, 1)
 
-[node name="GroundDetector" type="RayCast2D" parent="WheelRight"]
-enabled = true
-target_position = Vector2(0, 64)
-collision_mask = 1
-hit_from_inside = false
-
 [node name="JointLeft" type="PinJoint2D" parent="."]
 position = Vector2(-40, 0)
 node_a = NodePath("../Chassis")
@@ -79,3 +67,31 @@ position = Vector2(40, 0)
 node_a = NodePath("../Chassis")
 node_b = NodePath("../WheelRight")
 softness = 0.0
+
+[node name="GroundDetectorLeft" type="RayCast2D" parent="."]
+position = Vector2(-40, 0)
+enabled = true
+target_position = Vector2(0, 64)
+collision_mask = 1
+hit_from_inside = false
+
+[node name="GroundDetectorRight" type="RayCast2D" parent="."]
+position = Vector2(40, 0)
+enabled = true
+target_position = Vector2(0, 64)
+collision_mask = 1
+hit_from_inside = false
+
+[node name="CeilingDetectorLeft" type="RayCast2D" parent="."]
+position = Vector2(-40, 0)
+enabled = true
+target_position = Vector2(0, -64)
+collision_mask = 1
+hit_from_inside = false
+
+[node name="CeilingDetectorRight" type="RayCast2D" parent="."]
+position = Vector2(40, 0)
+enabled = true
+target_position = Vector2(0, -64)
+collision_mask = 1
+hit_from_inside = false

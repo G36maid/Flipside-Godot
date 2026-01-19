@@ -5,9 +5,13 @@
 - [x] **Project Structure**: 建立 POC 目錄結構與核心檔案。
 - [x] **Global Constants**: 定義物理參數 (閾值、力量、質量)。
 - [x] **Vehicle Setup**: 建立無碰撞柄+雙輪的物理結構。
-- [ ] **Adhesion Logic**: 完成 `vehicle_controller.gd` 的速度吸附與掉落邏輯。
-- [ ] **Input System**: 實作地面/空中輸入控制 (摩擦力 vs. 力矩)。
+- [x] **Adhesion Logic**: 完成 `vehicle_controller.gd` 的速度吸附與掉落邏輯。
+- [x] **Input System**: 實作地面/空中輸入控制 (摩擦力 vs. 力矩)。
+- [x] **Surface Detection**: 實作雙向表面檢測系統（地面+天花板）。
+- [x] **Vehicle Tracking**: 實作根節點位置跟隨系統。
+- [x] **Debug Visualization**: 完整的調試可視化系統（射線、速度、法線）。
 - [ ] **Track Gen**: 實作 Path2D 轉 CollisionPolygon2D 的工具。
+- [ ] **High-Speed Test**: 驗證高速（350+ px/s）粘附功能。
 - [ ] **Test**: 驗證橢圓軌道 360 度行駛不掉落。
 
 ## Phase 2: MVP (Minimum Playable)

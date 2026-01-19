@@ -12,8 +12,10 @@ extends Node2D
 @onready var chassis: RigidBody2D = $Chassis
 @onready var wheel_left: RigidBody2D = $WheelLeft
 @onready var wheel_right: RigidBody2D = $WheelRight
-@onready var ray_left: RayCast2D = $WheelLeft/GroundDetector
-@onready var ray_right: RayCast2D = $WheelRight/GroundDetector
+@onready var ray_left: RayCast2D = $GroundDetectorLeft
+@onready var ray_right: RayCast2D = $GroundDetectorRight
+@onready var ray_ceiling_left: RayCast2D = $CeilingDetectorLeft
+@onready var ray_ceiling_right: RayCast2D = $CeilingDetectorRight
 @onready var joint_left: PinJoint2D = $JointLeft
 @onready var joint_right: PinJoint2D = $JointRight
 
@@ -84,9 +86,10 @@ func _ready() -> void:
 var _last_adhered_state: bool = false
 var _debug_frame_counter: int = 0
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
+	_update_vehicle_position()  # Keep root node following the vehicle
 	_update_physics_state()
-	_handle_input(delta)
+	_handle_input()
 	_apply_adhesion_forces()
 	queue_redraw()  # Trigger debug visualization
 	
@@ -105,6 +108,19 @@ func _physics_process(delta: float) -> void:
 		_last_adhered_state = is_adhered
 
 # ========================================
+# VEHICLE POSITION UPDATE
+# ========================================
+
+func _update_vehicle_position() -> void:
+	"""
+	Update Vehicle root node position to follow the physical center.
+	This ensures RayCasts (attached to root) move with the vehicle.
+	"""
+	# Calculate center position between chassis and wheels
+	var center: Vector2 = (chassis.global_position + wheel_left.global_position + wheel_right.global_position) / 3.0
+	global_position = center
+
+# ========================================
 # STATE DETECTION
 # ========================================
 
@@ -118,27 +134,44 @@ func _update_physics_state() -> void:
 	var vel_right: Vector2 = wheel_right.linear_velocity
 	current_velocity = (vel_left + vel_right).length() / 2.0
 	
-	# Detect ground contact and extract surface normals
-	var left_grounded: bool = ray_left.is_colliding()
-	var right_grounded: bool = ray_right.is_colliding()
+	# Detect ground/ceiling contact and extract surface normals
+	var ground_left: bool = ray_left.is_colliding()
+	var ground_right: bool = ray_right.is_colliding()
+	var ceiling_left: bool = ray_ceiling_left.is_colliding()
+	var ceiling_right: bool = ray_ceiling_right.is_colliding()
 	
-	# Calculate combined surface normal
-	if left_grounded and right_grounded:
-		var normal_left: Vector2 = ray_left.get_collision_normal()
-		var normal_right: Vector2 = ray_right.get_collision_normal()
-		surface_normal = (normal_left + normal_right).normalized()
-	elif left_grounded:
-		surface_normal = ray_left.get_collision_normal()
-	elif right_grounded:
-		surface_normal = ray_right.get_collision_normal()
+	# Determine if any surface is detected
+	var any_surface: bool = ground_left or ground_right or ceiling_left or ceiling_right
+	
+	# Calculate combined surface normal (prioritize the side with more hits)
+	var normal_count: int = 0
+	var normal_sum: Vector2 = Vector2.ZERO
+	
+	if ground_left:
+		normal_sum += ray_left.get_collision_normal()
+		normal_count += 1
+	if ground_right:
+		normal_sum += ray_right.get_collision_normal()
+		normal_count += 1
+	if ceiling_left:
+		normal_sum += ray_ceiling_left.get_collision_normal()
+		normal_count += 1
+	if ceiling_right:
+		normal_sum += ray_ceiling_right.get_collision_normal()
+		normal_count += 1
+	
+	if normal_count > 0:
+		surface_normal = (normal_sum / normal_count).normalized()
 	else:
 		surface_normal = Vector2.UP  # Default fallback
 	
 	# Update adhesion state with hysteresis
-	_update_adhesion_state(left_grounded or right_grounded)
+	_update_adhesion_state(any_surface)
 	
-	# Update control mode
-	control_state = ControlState.GROUND if is_adhered else ControlState.AIR
+	# Update control mode based on surface contact (not adhesion state)
+	# Surface contact = can use wheel torque for movement
+	# No contact = must use air torque for rotation
+	control_state = ControlState.GROUND if any_surface else ControlState.AIR
 
 func _update_adhesion_state(grounded: bool) -> void:
 	"""
@@ -165,7 +198,7 @@ func _update_adhesion_state(grounded: bool) -> void:
 # INPUT HANDLING
 # ========================================
 
-func _handle_input(delta: float) -> void:
+func _handle_input() -> void:
 	"""
 	Process player input with mode-dependent control.
 	Ground: Direct wheel torque (friction-based propulsion)
@@ -239,16 +272,29 @@ func _draw() -> void:
 		draw_line(Vector2.ZERO, normal_vis, GlobalConstants.DEBUG_ADHESION_COLOR, 2.0)
 	
 	# Draw RayCast detectors (red = not colliding, green = colliding)
+	# Ground detectors (downward)
 	var ray_left_color: Color = Color.RED if not ray_left.is_colliding() else Color.GREEN
 	var ray_right_color: Color = Color.RED if not ray_right.is_colliding() else Color.GREEN
 	
-	var ray_left_start: Vector2 = wheel_left.position
-	var ray_left_end: Vector2 = wheel_left.position + ray_left.target_position
+	var ray_left_start: Vector2 = ray_left.position
+	var ray_left_end: Vector2 = ray_left.position + ray_left.target_position
 	draw_line(ray_left_start, ray_left_end, ray_left_color, 2.0)
 	
-	var ray_right_start: Vector2 = wheel_right.position
-	var ray_right_end: Vector2 = wheel_right.position + ray_right.target_position
+	var ray_right_start: Vector2 = ray_right.position
+	var ray_right_end: Vector2 = ray_right.position + ray_right.target_position
 	draw_line(ray_right_start, ray_right_end, ray_right_color, 2.0)
+	
+	# Ceiling detectors (upward)
+	var ray_ceiling_left_color: Color = Color.RED if not ray_ceiling_left.is_colliding() else Color.GREEN
+	var ray_ceiling_right_color: Color = Color.RED if not ray_ceiling_right.is_colliding() else Color.GREEN
+	
+	var ray_ceiling_left_start: Vector2 = ray_ceiling_left.position
+	var ray_ceiling_left_end: Vector2 = ray_ceiling_left.position + ray_ceiling_left.target_position
+	draw_line(ray_ceiling_left_start, ray_ceiling_left_end, ray_ceiling_left_color, 2.0)
+	
+	var ray_ceiling_right_start: Vector2 = ray_ceiling_right.position
+	var ray_ceiling_right_end: Vector2 = ray_ceiling_right.position + ray_ceiling_right.target_position
+	draw_line(ray_ceiling_right_start, ray_ceiling_right_end, ray_ceiling_right_color, 2.0)
 	
 	# Draw collision points if detected
 	if ray_left.is_colliding():
@@ -259,12 +305,40 @@ func _draw() -> void:
 		var collision_point: Vector2 = ray_right.get_collision_point() - global_position
 		draw_circle(collision_point, 4.0, Color.YELLOW)
 	
+	if ray_ceiling_left.is_colliding():
+		var collision_point: Vector2 = ray_ceiling_left.get_collision_point() - global_position
+		draw_circle(collision_point, 4.0, Color.CYAN)
+	
+	if ray_ceiling_right.is_colliding():
+		var collision_point: Vector2 = ray_ceiling_right.get_collision_point() - global_position
+		draw_circle(collision_point, 4.0, Color.CYAN)
+	
 	# Draw state text
-	var state_text: String = "Vel: %.0f | Adhered: %s | Mode: %s | RayL: %s | RayR: %s" % [
+	var ground_state: String = ""
+	if ray_left.is_colliding():
+		ground_state += "GL "
+	if ray_right.is_colliding():
+		ground_state += "GR "
+	if ray_ceiling_left.is_colliding():
+		ground_state += "CL "
+	if ray_ceiling_right.is_colliding():
+		ground_state += "CR"
+	if ground_state == "":
+		ground_state = "NONE"
+	
+	var state_text: String = "Vel: %.0f | Adhered: %s | Mode: %s | Surface: %s" % [
 		current_velocity,
 		"YES" if is_adhered else "NO",
 		"GROUND" if control_state == ControlState.GROUND else "AIR",
-		"HIT" if ray_left.is_colliding() else "MISS",
-		"HIT" if ray_right.is_colliding() else "MISS"
+		ground_state
 	]
 	draw_string(ThemeDB.fallback_font, Vector2(-80, -70), state_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
+	
+	# Draw input indicator
+	var input_dir: float = Input.get_axis("ui_left", "ui_right")
+	if abs(input_dir) > 0.01:
+		var input_text: String = "Input: %.2f | %s" % [
+			input_dir,
+			"WHEEL TORQUE" if control_state == ControlState.GROUND else "AIR TORQUE"
+		]
+		draw_string(ThemeDB.fallback_font, Vector2(-80, -50), input_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.GREEN)
